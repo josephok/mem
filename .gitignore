@@ -1,0 +1,17 @@
+.deps/
+mem
+depcomp
+COPYING
+INSTALL
+ChangeLog
+Makefile
+NEWS
+autom4te.cache/
+autoscan.log
+compile
+config.log
+config.status
+*.o
+missing
+stamp-h1
+tags
