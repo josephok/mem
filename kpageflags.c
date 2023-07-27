@@ -25,18 +25,26 @@ void print_flags(uintptr_t vaddr_start, uintptr_t vaddr_end, pid_t pid)
     if (pagemap_fd < 0)
         err(EXIT_FAILURE, "open %s failed", pagemap_file);
 
-    PagemapEntry entry;
+    PagemapEntry entry[READ_COUNT];
     uintptr_t phy_addr;
-    for (size_t i = 0; i < npages; i++) {
+    int nread;
+    int nleft = npages;
+    for (size_t i = 0; i < npages; i+= READ_COUNT) {
         uintptr_t vaddr = vaddr_start + i*PAGE_SIZE;
-        if (pagemap_get_entry(&entry, pagemap_fd, vaddr))
+        if ((nread = pagemap_get_entry(entry, MIN(nleft, READ_COUNT), pagemap_fd, vaddr)) < 0)
             err(EXIT_FAILURE, "read %s failed", pagemap_file);
-        phy_addr = (entry.pfn * PAGE_SIZE) + (vaddr % PAGE_SIZE);
-        uint64_t flags = read_u64(kpageflags_fd, entry.pfn * PAGE_ENTRY_SIZE);
-        char buf[BUFSIZ] = {0};
-        get_kpageflags(buf, flags);
 
-        printf("virtual addr: 0x%jx, physical addr: 0x%jx, flags: %s\n", vaddr, phy_addr, buf);
+        nleft -= nread;
+
+        for (size_t j = 0; j < nread; j++) {
+            vaddr = vaddr_start + (i+j) * PAGE_SIZE;
+            phy_addr = (entry[j].pfn * PAGE_SIZE) + (vaddr % PAGE_SIZE);
+            uint64_t flags = read_u64(kpageflags_fd, entry[j].pfn * PAGE_ENTRY_SIZE);
+            char buf[BUFSIZ] = {0};
+            get_kpageflags(buf, flags);
+
+            printf("virtual addr: 0x%jx, physical addr: 0x%jx, flags: %s\n", vaddr, phy_addr, buf);
+        }
     }
     close(kpageflags_fd);
     close(pagemap_fd);

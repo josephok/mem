@@ -102,8 +102,9 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_mem_OBJECTS = mem.$(OBJEXT) kpageflags.$(OBJEXT) pagemap.$(OBJEXT) \
+am__objects_1 = mem.$(OBJEXT) kpageflags.$(OBJEXT) pagemap.$(OBJEXT) \
 	mem_usage.$(OBJEXT) read_u64.$(OBJEXT)
+am_mem_OBJECTS = $(am__objects_1)
 mem_OBJECTS = $(am_mem_OBJECTS)
 mem_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -137,7 +138,6 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(mem_SOURCES)
 DIST_SOURCES = $(mem_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -227,6 +227,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+READ_COUNT = @READ_COUNT@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -274,8 +275,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = -Wall -g3
-mem_SOURCES = mem.c kpageflags.c pagemap.c mem_usage.c read_u64.c
+AM_CFLAGS = -Wall -g3 -DREAD_COUNT=$(READ_COUNT)
+SOURCES = mem.c kpageflags.c pagemap.c mem_usage.c read_u64.c
+mem_SOURCES = $(SOURCES) mem.h
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

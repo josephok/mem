@@ -42,6 +42,11 @@ int main(int argc, char *argv[])
                 addr_e = strtoull(endptr+1, &endptr, 16);
                 if (addr_e <= addr_s)
                     addr_e = addr_s + PAGE_SIZE;
+
+                if (addr_s % PAGE_SIZE != 0 || addr_e % PAGE_SIZE != 0) {
+                    fprintf(stderr, "address must be 0x%lx bytes aligned\n", PAGE_SIZE);
+                    exit(EXIT_FAILURE);
+                }
                 break;
             default: /* '?' */
                 PRINT_USGAE(EXIT_FAILURE);

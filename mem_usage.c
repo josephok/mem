@@ -24,7 +24,7 @@ void print_mem_usage(pid_t pid)
 
     char buf[BUFSIZ];
     uintptr_t vaddr_start, vaddr_end;
-    PagemapEntry entry;
+    PagemapEntry entry[READ_COUNT];
 
     size_t vsz = 0;
     size_t rss = 0;
@@ -47,17 +47,24 @@ void print_mem_usage(pid_t pid)
         size_t line_rss = 0;
         size_t line_uss = 0;
         double line_pss = 0.0;
-        for (size_t i = 0; i < npages; i++) {
-            if (pagemap_get_entry(&entry, pagemap_fd, vaddr_start + i*PAGE_SIZE))
+        int nread;
+        int nleft = npages;
+        for (size_t i = 0; i < npages; i += READ_COUNT) {
+            uintptr_t vaddr = vaddr_start + i*PAGE_SIZE;
+            if ((nread = pagemap_get_entry(entry, MIN(nleft, READ_COUNT), pagemap_fd, vaddr)) < 0)
                 err(EXIT_FAILURE, "read %s failed", pagemap_file);
 
-            if (entry.present) {
-                line_rss++;
-                uint64_t count = read_u64(kpagecount_fd, entry.pfn * PAGE_ENTRY_SIZE);
-                if (count == 1)
-                    line_uss++;
-                else if (count > 1) {
-                    line_pss += 1.0/count;
+            nleft -= nread;
+
+            for (size_t j = 0; j < nread; j++) {
+                if (entry[j].present) {
+                    line_rss++;
+                    uint64_t count = read_u64(kpagecount_fd, entry[j].pfn * PAGE_ENTRY_SIZE);
+                    if (count == 1)
+                        line_uss++;
+                    else if (count > 1) {
+                        line_pss += 1.0/count;
+                    }
                 }
             }
         }

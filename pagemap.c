@@ -1,25 +1,20 @@
+#include <assert.h>
 #include "mem.h"
 
-/* Parse the pagemap entry for the given virtual address.
- *
- * @param[out] entry      the parsed entry
- * @param[in]  pagemap_fd file descriptor to an open /proc/pid/pagemap file
- * @param[in]  vaddr      virtual address to get entry for
- * @return 0 for success, 1 for failure
- */
-int pagemap_get_entry(PagemapEntry *entry, int pagemap_fd, uintptr_t vaddr)
+int pagemap_get_entry(PagemapEntry entry[], size_t entry_size, int pagemap_fd, uintptr_t vaddr)
 {
-    uint64_t data;
-    uintptr_t vpn;
+    uint64_t data[entry_size];
+    uintptr_t vpn = vaddr / PAGE_SIZE;
+    ssize_t nread;
 
-    vpn = vaddr / PAGE_SIZE;
-
-    if (pread(pagemap_fd, &data, sizeof(data), vpn * sizeof(data)) < 0)
-        return 1;
-    entry->pfn = data & (((uint64_t)1 << 55) - 1);
-    entry->soft_dirty = (data >> 55) & 1;
-    entry->file_page = (data >> 61) & 1;
-    entry->swapped = (data >> 62) & 1;
-    entry->present = (data >> 63) & 1;
-    return 0;
+    if ((nread = pread(pagemap_fd, data, sizeof(data), vpn * sizeof(uint64_t))) < 0)
+        return -1;
+    for (size_t i = 0; i < nread / sizeof(uint64_t); i++) {
+        entry[i].pfn = data[i] & (((uint64_t)1 << 55) - 1);
+        entry[i].soft_dirty = (data[i] >> 55) & 1;
+        entry[i].file_page = (data[i] >> 61) & 1;
+        entry[i].swapped = (data[i] >> 62) & 1;
+        entry[i].present = (data[i] >> 63) & 1;
+    }
+    return nread / sizeof(uint64_t);
 }
