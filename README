@@ -100,7 +100,10 @@ ffffae580000-ffffae581000 r-xp 00000000 00:00 0                          [vdso] 
 ffffae581000-ffffae583000 r--p 0002a000 08:02 1841404                    /usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1 VSZ:8KB RSS:8KB PSS:8KB USS:8KB
 ffffae583000-ffffae585000 rw-p 0002c000 08:02 1841404                    /usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1 VSZ:8KB RSS:8KB PSS:8KB USS:8KB
 ffffc04b6000-ffffc04d7000 rw-p 00000000 00:00 0                          [stack] VSZ:132KB RSS:12KB PSS:12KB USS:12KB
+===============================================================
 VSZ:1497188KB	 RSS:49324KB	 PSS:48100KB	 USS:48084KB
+
+You can view VSZ, RSS, PSS, USS of every entry in `/proc/pid/maps`, and the total value in the last line.
 
 2.2. To view memory flags:
 sudo mem -a start_addr-end_addr pid

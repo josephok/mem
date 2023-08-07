@@ -75,6 +75,8 @@ void print_mem_usage(pid_t pid)
         pss += PAGE_TO_KB(line_uss + line_pss);
         uss += PAGE_TO_KB(line_uss);
     }
+
+    printf("=================================================================\n");
     printf("VSZ:%luKB\t RSS:%luKB\t PSS:%luKB\t USS:%luKB\n", vsz, rss, pss, uss);
     close(pagemap_fd);
     close(kpagecount_fd);
