@@ -9,7 +9,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_ARG_VAR(READ_COUNT, number of pages read per time)
 
 if test "${ac_env_READ_COUNT_set}" != "set"; then
-  READ_COUNT=40
+  READ_COUNT=100
 fi
 
 AM_INIT_AUTOMAKE()
